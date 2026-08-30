@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a12">
+<title>Formula Quest — 数学复习冒险</title>
+<style>
+/* ============================================================
+ * Formula Quest · 暗色游戏主题样式
+ * ============================================================ */
+:root{
+  --bg-deep:#0a0a12; --bg-dark:#0f0e17; --bg-mid:#1a1a2e; --bg-card:#16213e;
+  --bg-hover:#1f2944; --primary:#e94560; --primary-g:#ff6b8a; --accent:#00d9ff;
+  --accent-g:#4de8ff; --gold:#ffd166; --green:#06d6a0; --green-g:#2ce8b8;
+  --purple:#7b2cbf; --text:#f0f0f5; --text-dim:#8b8ba7; --text-muted:#5a5a78;
+  --border:rgba(255,255,255,.08); --radius:14px; --radius-sm:8px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --trans:.3s cubic-bezier(.4,0,.2,1); --trans-fast:.15s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+html,body{width:100%;min-height:100%;overflow-x:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  background:var(--bg-deep);color:var(--text);line-height:1.5;
+  min-height:100svh;overscroll-behavior:none;touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;
+}
+input,textarea{-webkit-user-select:text;user-select:text}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 20% 10%,rgba(123,44,191,.15),transparent 50%),
+    radial-gradient(ellipse at 80% 80%,rgba(0,217,255,.08),transparent 50%),
+    radial-gradient(ellipse at 50% 50%,rgba(233,69,96,.05),transparent 70%);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4;
+  background-image:
+    radial-gradient(1px 1px at 25% 30%,rgba(255,255,255,.4),transparent),
+    radial-gradient(1px 1px at 60% 70%,rgba(255,255,255,.3),transparent),
+    radial-gradient(1px 1px at 85% 20%,rgba(255,255,255,.35),transparent),
+    radial-gradient(1px 1px at 15% 80%,rgba(255,255,255,.25),transparent),
+    radial-gradient(1px 1px at 45% 50%,rgba(255,255,255,.3),transparent),
+    radial-gradient(2px 2px at 75% 45%,rgba(0,217,255,.2),transparent);
+  background-size:100% 100%;
+}
+#app{position:relative;z-index:1;width:100%;max-width:600px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column}
+
+/* ---------- 通用 ---------- */
+.page{display:none;flex:1;flex-direction:column;animation:fadeIn .4s ease}
+.page.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{opacity:0;transform:scale(.7)}60%{transform:scale(1.05)}100%{opacity:1;transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(0,217,255,.3)}50%{box-shadow:0 0 40px rgba(0,217,255,.6)}}
+@keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(.8)}30%{opacity:1;transform:translateY(-20px) scale(1.1)}100%{opacity:0;transform:translateY(-80px) scale(.9)}}
+@keyframes comboFlash{0%{transform:scale(1)}50%{transform:scale(1.3);text-shadow:0 0 20px var(--gold)}100%{transform:scale(1)}}
+@keyframes hpPulse{0%{box-shadow:0 0 0 0 rgba(233,69,96,.6)}100%{box-shadow:0 0 0 12px rgba(233,69,96,0)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* ---------- 顶部栏 ---------- */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top));
+  background:rgba(15,14,23,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;
+}
+.topbar .logo{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--primary-g),var(--accent-g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.5px}
+.topbar .rank-badge{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:700;display:flex;align-items:center;gap:4px}
+.topbar .back-btn{background:none;border:none;color:var(--accent);font-size:24px;cursor:pointer;padding:4px 8px;line-height:1}
+
+/* ---------- 地图页 ---------- */
+#map-page .map-header{text-align:center;padding:20px 16px 12px}
+#map-page .map-header h1{font-size:26px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,var(--primary-g),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#map-page .map-header p{font-size:13px;color:var(--text-dim);margin-top:4px}
+.stats-bar{display:flex;justify-content:center;gap:12px;padding:0 16px 16px;flex-wrap:wrap}
+.stat-pill{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:5px;color:var(--text-dim)}
+.stat-pill b{color:var(--text);font-weight:700}
+.stat-pill .icon{font-size:14px}
+
+.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:8px 16px 24px;flex:1}
+.level-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 8px;text-align:center;cursor:pointer;position:relative;
+  transition:var(--trans);overflow:hidden;animation:slideUp .4s ease backwards;
+}
+.level-card:active{transform:scale(.95)}
+.level-card.locked{opacity:.35;cursor:not-allowed}
+.level-card.unlocked:hover{border-color:var(--accent);box-shadow:0 0 20px rgba(0,217,255,.15)}
+.level-card.cleared{border-color:rgba(6,214,160,.3)}
+.level-card .lc-icon{font-size:28px;margin-bottom:4px}
+.level-card .lc-num{font-size:10px;color:var(--text-muted);font-weight:700}
+.level-card .lc-name{font-size:12px;font-weight:600;margin-top:2px;line-height:1.3}
+.level-card .lc-stars{font-size:11px;margin-top:6px;letter-spacing:1px}
+.level-card .lc-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(10,10,18,.6)}
+.level-card .lc-lock.hidden{display:none}
+.star-filled{color:var(--gold);text-shadow:0 0 6px rgba(255,209,102,.5)}
+.star-empty{color:var(--text-muted);opacity:.4}
+.daily-btn{
+  margin:0 16px 16px;padding:14px;border:2px dashed var(--purple);
+  background:rgba(123,44,191,.1);border-radius:var(--radius);text-align:center;
+  cursor:pointer;transition:var(--trans);font-weight:700;color:var(--text);
+}
+.daily-btn:active{transform:scale(.97)}
+.daily-btn .db-icon{font-size:20px;margin-right:6px}
+
+/* ---------- 战斗页通用 ---------- */
+#battle-page{padding:0 16px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.battle-hud{display:flex;align-items:center;gap:10px;padding:12px 0;flex-wrap:wrap}
+.hud-item{flex:1;min-width:80px}
+.hud-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;font-weight:700}
+.hud-bar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;position:relative}
+.hud-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);position:relative}
+.hud-fill.hp{background:linear-gradient(90deg,var(--primary),var(--primary-g))}
+.hud-fill.boss{background:linear-gradient(90deg,var(--purple),var(--primary))}
+.hud-fill.hp.low{animation:hpPulse 1s infinite}
+.hud-value{font-size:13px;font-weight:700;margin-top:2px}
+.hud-value.hp{color:var(--primary-g)}
+.hud-value.boss{color:var(--primary-g)}
+
+.combo-display{text-align:center;padding:4px 0 8px;min-height:32px}
+.combo-display .combo-num{font-size:22px;font-weight:900;color:var(--gold);text-shadow:0 0 10px rgba(255,209,102,.4)}
+.combo-display.has-combo .combo-num{animation:comboFlash .4s ease}
+.combo-display .combo-label{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:1px}
+.combo-display.frenzy .combo-num{color:var(--primary-g);text-shadow:0 0 15px rgba(255,107,138,.6);animation:pulse .5s infinite}
+
+.phase-banner{text-align:center;padding:8px 0 12px}
+.phase-banner .pb-step{font-size:11px;color:var(--accent);letter-spacing:2px;font-weight:700;text-transform:uppercase}
+.phase-banner .pb-title{font-size:18px;font-weight:800;margin-top:2px}
+.phase-banner .pb-sub{font-size:12px;color:var(--text-dim);margin-top:2px}
+
+/* ---------- 闪卡阶段 ---------- */
+.flashcard-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px}
+.flashcard{
+  width:100%;max-width:380px;min-height:200px;
+  background:linear-gradient(145deg,var(--bg-card),var(--bg-mid));
+  border:2px solid var(--border);border-radius:20px;padding:28px 20px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;position:relative;transition:var(--trans);
+}
+.flashcard.flipped{border-color:var(--accent);box-shadow:0 0 30px rgba(0,217,255,.2)}
+.flashcard .fc-en{font-size:16px;font-weight:700;color:var(--accent-g);margin-bottom:8px;line-height:1.4}
+.flashcard .fc-cn{font-size:14px;color:var(--text-dim);margin-bottom:14px}
+.flashcard .fc-answer{display:none;font-size:15px;color:var(--text);line-height:1.6}
+.flashcard.flipped .fc-answer{display:block;animation:popIn .3s ease}
+.flashcard.flipped .fc-prompt{display:none}
+.flashcard .fc-formula{margin-top:10px;font-size:14px;color:var(--gold);font-weight:600;background:rgba(255,209,102,.08);padding:6px 12px;border-radius:8px}
+.flashcard .fc-action{margin-top:8px;font-size:12px;color:var(--green-g)}
+.flashcard .fc-tap-hint{position:absolute;bottom:10px;font-size:11px;color:var(--text-muted)}
+
+.flash-options{width:100%;max-width:380px;margin-top:20px;display:grid;gap:10px}
+.flash-opt{
+  padding:14px;border-radius:12px;border:2px solid var(--border);
+  background:var(--bg-card);font-size:14px;font-weight:600;color:var(--text);
+  cursor:pointer;transition:var(--trans-fast);text-align:center;
+}
+.flash-opt:active{transform:scale(.97)}
+.flash-opt.correct{border-color:var(--green);background:rgba(6,214,160,.15);color:var(--green-g)}
+.flash-opt.wrong{border-color:var(--primary);background:rgba(233,69,96,.15);color:var(--primary-g);animation:shake .4s ease}
+
+/* ---------- 挖空阶段 ---------- */
+.fillblank-area{flex:1;display:flex;flex-direction:column;padding-top:8px}
+.fb-question{font-size:18px;font-weight:700;text-align:center;padding:20px 12px;line-height:1.8;min-height:80px}
+.fb-blank{
+  display:inline-block;min-width:50px;padding:2px 8px;margin:0 2px;
+  border:2px dashed var(--accent);border-radius:6px;text-align:center;
+  color:var(--accent-g);font-weight:800;transition:var(--trans-fast);
+}
+.fb-blank.filled{border-style:solid;border-color:var(--green);color:var(--green-g);background:rgba(6,214,160,.1)}
+.fb-blank.filled.wrong{border-color:var(--primary);color:var(--primary-g);background:rgba(233,69,96,.1);animation:shake .4s}
+.fb-token-pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:16px 0;min-height:60px}
+.fb-token{
+  padding:10px 16px;border-radius:10px;font-weight:800;font-size:15px;
+  background:linear-gradient(145deg,var(--bg-hover),var(--bg-card));
+  border:1px solid var(--border);cursor:grab;transition:var(--trans-fast);
+  touch-action:none;user-select:none;-webkit-user-select:none;
+}
+.fb-token:active{cursor:grabbing;transform:scale(1.1)}
+.fb-token.used{opacity:.25;pointer-events:none}
+.fb-token.dragging{opacity:.7;z-index:100;transform:scale(1.15);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.fb-blank.drop-hover{border-color:var(--gold);background:rgba(255,209,102,.1);transform:scale(1.05)}
+.fb-actions{display:flex;gap:10px;margin-top:12px}
+.fb-btn{flex:1;padding:12px;border-radius:10px;border:none;font-weight:700;font-size:14px;cursor:pointer;transition:var(--trans-fast)}
+.fb-btn:active{transform:scale(.97)}
+.fb-btn.submit{background:linear-gradient(135deg,var(--green),var(--green-g));color:#0a0a12}
+.fb-btn.skip{background:rgba(255,255,255,.08);color:var(--text-dim)}
+
+/* ---------- BOSS阶段 ---------- */
+.boss-area{flex:1;display:flex;flex-direction:column;padding-top:8px}
+.boss-visual{text-align:center;padding:12px 0;position:relative}
+.boss-avatar{font-size:56px;animation:pulse 2s infinite;display:inline-block}
+.boss-avatar.hit{animation:shake .4s ease}
+.boss-q{font-size:16px;font-weight:700;text-align:center;padding:12px;line-height:1.6;background:rgba(255,255,255,.04);border-radius:12px;margin:8px 0}
+.boss-steps{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.boss-step{
+  display:flex;align-items:center;gap:8px;padding:10px 12px;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  font-size:14px;animation:slideUp .3s ease backwards;
+}
+.boss-step .step-idx{width:22px;height:22px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.boss-step input{flex:1;background:none;border:none;color:var(--text);font-size:14px;font-weight:600;border-bottom:1px solid var(--border);padding:4px 0;outline:none}
+.boss-step input:focus{border-bottom-color:var(--accent)}
+.boss-step.done{border-color:var(--green)}
+.boss-step.done .step-idx{background:var(--green)}
+.boss-step.wrong{border-color:var(--primary);animation:shake .4s}
+.boss-step .step-hint{font-size:11px;color:var(--text-muted);margin-left:auto;cursor:pointer;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.05)}
+.boss-actions{display:flex;gap:10px;margin-top:8px}
+.boss-btn{flex:1;padding:12px;border-radius:10px;border:none;font-weight:700;font-size:14px;cursor:pointer;transition:var(--trans-fast)}
+.boss-btn:active{transform:scale(.97)}
+.boss-btn.check{background:linear-gradient(135deg,var(--primary),var(--primary-g));color:#fff}
+.boss-btn.hint{background:rgba(255,209,102,.15);color:var(--gold)}
+
+/* ---------- 浮动反馈 ---------- */
+.float-feedback{position:fixed;left:50%;top:40%;transform:translateX(-50%);z-index:200;pointer-events:none;font-size:28px;font-weight:900;animation:floatUp 1s ease forwards}
+.float-feedback.pos{color:var(--green-g);text-shadow:0 0 15px rgba(6,214,160,.5)}
+.float-feedback.neg{color:var(--primary-g);text-shadow:0 0 15px rgba(233,69,96,.5)}
+
+/* ---------- Toast ---------- */
+#toast-container{position:fixed;top:max(60px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:90%;max-width:400px}
+.toast{
+  background:rgba(22,33,62,.95);backdrop-filter:blur(12px);border:1px solid var(--border);
+  border-radius:12px;padding:12px 16px;font-size:13px;font-weight:600;text-align:center;
+  animation:slideUp .3s ease;box-shadow:var(--shadow);
+}
+.toast.badge{border-color:var(--gold);background:rgba(255,209,102,.15);color:var(--gold)}
+.toast.rank{border-color:var(--accent);background:rgba(0,217,255,.12);color:var(--accent-g)}
+.toast.error{border-color:var(--primary);color:var(--primary-g)}
+
+/* ---------- 结算页 ---------- */
+#result-page{padding:24px 16px;text-align:center}
+.result-icon{font-size:64px;animation:popIn .5s ease;margin-bottom:8px}
+.result-title{font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--primary-g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.result-sub{font-size:14px;color:var(--text-dim);margin-bottom:20px}
+.result-stars{font-size:48px;margin:12px 0;letter-spacing:8px}
+.result-stars .star-filled{display:inline-block;animation:popIn .5s ease backwards}
+.result-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:20px 0}
+.result-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px}
+.result-stat .rs-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.result-stat .rs-value{font-size:20px;font-weight:800;margin-top:4px}
+.result-actions{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.btn-primary{padding:14px;border-radius:12px;border:none;font-weight:800;font-size:15px;cursor:pointer;background:linear-gradient(135deg,var(--primary),var(--primary-g));color:#fff;transition:var(--trans-fast)}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{padding:14px;border-radius:12px;border:1px solid var(--border);font-weight:700;font-size:15px;cursor:pointer;background:rgba(255,255,255,.05);color:var(--text);transition:var(--trans-fast)}
+.btn-secondary:active{transform:scale(.97)}
+
+.ms-display{background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.2);border-radius:12px;padding:14px;margin:16px 0;text-align:left}
+.ms-display .ms-label{font-size:11px;color:var(--green);font-weight:700;letter-spacing:1px;margin-bottom:6px}
+.ms-display .ms-text{font-size:13px;color:var(--text);line-height:1.6;font-style:italic}
+
+/* ---------- 登录页 ---------- */
+.login-wrap{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 24px;text-align:center;
+}
+.login-logo{font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--primary-g),var(--accent-g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.5px}
+.login-title{font-size:30px;font-weight:900;margin-top:8px;background:linear-gradient(135deg,var(--primary-g),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-sub{font-size:13px;color:var(--text-dim);margin:10px 0 28px}
+.login-name-input-wrap{display:flex;gap:10px;width:100%;max-width:340px}
+.login-name-input{
+  flex:1;padding:14px;border-radius:12px;border:2px solid var(--border);
+  background:var(--bg-card);color:var(--text);font-size:16px;font-weight:600;outline:none;
+  transition:var(--trans-fast);
+}
+.login-name-input:focus{border-color:var(--accent);box-shadow:0 0 15px rgba(0,217,255,.15)}
+.login-enter{padding:14px 20px;white-space:nowrap;border-radius:12px}
+.login-history-label{font-size:12px;color:var(--text-muted);margin:28px 0 10px;letter-spacing:1px;text-transform:uppercase}
+.login-user-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%;max-width:360px}
+.login-user-chip{
+  padding:10px 16px;border-radius:20px;font-size:14px;font-weight:700;cursor:pointer;
+  background:linear-gradient(145deg,var(--bg-hover),var(--bg-card));border:1px solid var(--border);
+  transition:var(--trans-fast);
+}
+.login-user-chip:active{transform:scale(.95);border-color:var(--accent)}
+.login-user-chip .chip-x{color:var(--primary-g);margin-left:6px;font-weight:900}
+.login-tip{font-size:11px;color:var(--text-muted);margin-top:30px;max-width:300px;line-height:1.6}
+.login-empty{font-size:13px;color:var(--text-muted);padding:12px;opacity:.7}
+
+/* 切换用户确认框 */
+.user-switch-overlay{
+  position:fixed;inset:0;z-index:500;background:rgba(10,10,18,.85);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.user-switch-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:24px;
+  width:100%;max-width:320px;box-shadow:var(--shadow);text-align:center;
+}
+.user-switch-card .usc-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.user-switch-card .usc-current{font-size:14px;color:var(--accent-g);margin-bottom:16px}
+.user-switch-card .usc-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:220px;overflow-y:auto}
+.user-switch-card .usc-item{
+  padding:12px;border-radius:10px;background:var(--bg-hover);border:1px solid var(--border);
+  cursor:pointer;font-weight:600;transition:var(--trans-fast);text-align:left;
+}
+.user-switch-card .usc-item:active{transform:scale(.98)}
+.user-switch-card .usc-item .usc-stars{float:right;font-size:12px;color:var(--gold)}
+.user-switch-card .usc-new{padding:12px;border-radius:10px;border:2px dashed var(--accent);cursor:pointer;font-weight:700;color:var(--accent-g);margin-bottom:8px}
+.user-switch-card .usc-close{padding:10px;border-radius:10px;background:rgba(255,255,255,.05);cursor:pointer;font-weight:600;color:var(--text-dim)}
+
+/* ---------- 响应式 ---------- */
+@media(max-width:360px){
+  .level-grid{gap:8px;padding:8px 12px 20px}
+  .level-card{padding:10px 6px}
+  .level-card .lc-icon{font-size:24px}
+  .level-card .lc-name{font-size:11px}
+  .flashcard{padding:20px 16px;min-height:180px}
+  .flashcard .fc-en{font-size:14px}
+}
+@media(min-width:500px){
+  .level-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(min-width:700px){
+  .level-grid{grid-template-columns:repeat(6,1fr)}
+  #app{max-width:700px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ 登录页 ============ -->
+  <div id="login-page" class="page active">
+    <div class="login-wrap">
+      <div class="login-logo">⚔ Formula Quest</div>
+      <div class="login-title">数学复习冒险</div>
+      <div class="login-sub">你是谁？选择或输入你的名字开始冒险</div>
+      <div class="login-name-input-wrap">
+        <input type="text" id="login-name-input" class="login-name-input" placeholder="输入你的名字..." maxlength="12" autocomplete="off">
+        <button class="btn-primary login-enter" id="login-enter-btn">进入游戏</button>
+      </div>
+      <div class="login-history-label">历史同学（点一下直接登录）</div>
+      <div id="login-user-list" class="login-user-list"></div>
+      <div class="login-tip">每个同学的进度分别保存在自己浏览器里，互不干扰</div>
+    </div>
+  </div>
+
+  <!-- ============ 地图页 ============ -->
+  <div id="map-page" class="page">
+    <div class="topbar">
+      <div class="logo">⚔ Formula Quest</div>
+      <button id="user-btn" class="rank-badge" style="background:rgba(0,217,255,.15);color:var(--accent-g)">👤 未登录</button>
+    </div>
+    <div class="map-header">
+      <h1>数学冒险地图</h1>
+      <p>18关·闪卡→挖空→BOSS三阶段战斗</p>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill" id="rank-pill" style="background:rgba(123,44,191,.2);color:#c77dff"><span class="icon">🏆</span><span>段位</span><b id="rank-badge">青铜</b></div>
+      <div class="stat-pill"><span class="icon">⭐</span><span>总星数</span><b id="total-stars">0</b><span>/54</span></div>
+      <div class="stat-pill"><span class="icon">🔥</span><span>最高连击</span><b id="best-combo">0</b></div>
+      <div class="stat-pill"><span class="icon">🏆</span><span>徽章</span><b id="badge-count">0</b></div>
+    </div>
+    <div id="level-grid" class="level-grid"></div>
+    <div class="daily-btn" id="daily-btn">
+      <span class="db-icon">🎲</span>每日秘境 · 随机3关挑战
+    </div>
+    <div class="daily-btn" id="reset-btn" style="border-color:var(--primary);background:rgba(233,69,96,.08);color:var(--primary-g);font-size:13px">
+      ⚠ 重置全部存档
+    </div>
+  </div>
+
+  <!-- ============ 战斗页 ============ -->
+  <div id="battle-page" class="page">
+    <div class="topbar">
+      <button class="back-btn" id="battle-back">‹</button>
+      <div id="battle-title" class="logo" style="font-size:14px">关卡</div>
+      <div style="width:28px"></div>
+    </div>
+    <div class="battle-hud">
+      <div class="hud-item">
+        <div class="hud-label">玩家 HP</div>
+        <div class="hud-bar"><div id="hp-fill" class="hud-fill hp" style="width:100%"></div></div>
+        <div id="hp-value" class="hud-value hp">100</div>
+      </div>
+      <div class="hud-item" id="boss-hud-item" style="display:none">
+        <div class="hud-label">BOSS HP</div>
+        <div class="hud-bar"><div id="boss-fill" class="hud-fill boss" style="width:100%"></div></div>
+        <div id="boss-value" class="hud-value boss">100</div>
+      </div>
+    </div>
+    <div id="combo-display" class="combo-display">
+      <span class="combo-num" id="combo-num" style="display:none">0</span>
+      <span class="combo-label" id="combo-label"></span>
+    </div>
+    <div class="phase-banner">
+      <div id="phase-step" class="pb-step">PHASE 1 / 3</div>
+      <div id="phase-title" class="pb-title">闪卡突袭</div>
+      <div id="phase-sub" class="pb-sub">看到英文触发词，选出对应的中文含义</div>
+    </div>
+    <div id="battle-content" style="flex:1;display:flex;flex-direction:column"></div>
+  </div>
+
+  <!-- ============ 结算页 ============ -->
+  <div id="result-page" class="page">
+    <div id="result-icon" class="result-icon">🎉</div>
+    <div id="result-title" class="result-title">关卡完成！</div>
+    <div id="result-sub" class="result-sub"></div>
+    <div id="result-stars" class="result-stars"></div>
+    <div id="result-stats" class="result-stats"></div>
+    <div id="ms-display" class="ms-display" style="display:none">
+      <div class="ms-label">★ 满分句式参考</div>
+      <div id="ms-text" class="ms-text"></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn-primary" id="result-next">下一关</button>
+      <button class="btn-secondary" id="result-replay">重玩本关</button>
+      <button class="btn-secondary" id="result-map">返回地图</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// ============================================================
+// Formula Quest · 18关数据文件
+// 每关结构: triggers(闪卡) / fillBlanks(挖空) / microTasks(BOSS微题) / trapCards(陷阱) / badges(徽章)
+// ============================================================
+
+const QUEST_DATA = [
+  // ==================== 第1关 ====================
+  {
+    chapter: 1,
+    name: "二次函数与判别式",
+    enName: "Quadratic Functions & Discriminant",
+    icon: "📐",
+    triggers: [
+      { en: "complete the square", cn: "配方", action: "Write in form a(x−h)²+k", formula: "(x+b/2)²−(b/2)²" },
+      { en: "no real roots", cn: "无实根", action: "Set Δ < 0", formula: "Δ = b²−4ac < 0" },
+      { en: "two equal real roots", cn: "两个相等实根", action: "Set Δ = 0", formula: "Δ = b²−4ac = 0" },
+      { en: "two distinct real roots", cn: "两个不等实根", action: "Set Δ > 0", formula: "Δ = b²−4ac > 0" },
+      { en: "vertex coordinates", cn: "顶点坐标", action: "Complete square → (h,k)", formula: "h=−b/2a, k=f(h)" },
+      { en: "find the range of k", cn: "求k的取值范围", action: "Solve inequality from Δ", formula: "Δ < 0 / > 0" }
+    ],
+    fillBlanks: [
+      { q: "x² + bx = (x + __)² − __", answer: ["b/2", "(b/2)²"] },
+      { q: "Δ = __² − 4·__·__", answer: ["b", "a", "c"] },
+      { q: "x²+6x+5 = (x+__)² − __", answer: ["3", "4"] },
+      { q: "For no real roots, Δ __ 0", answer: ["<"] }
+    ],
+    microTasks: [
+      { q: "Express x²+6x+5 in the form (x+h)²+k", steps: ["(x+3)²−9+5", "(x+3)²−4"], ms: "Hence the vertex is (−3, −4)." },
+      { q: "Find Δ of x²+x+1", steps: ["1−4", "−3"], ms: "Since Δ = −3 < 0, the equation has no real roots." },
+      { q: "Range of k: x²+2x+(k+1)=0 has no real roots", steps: ["Δ=4−4(k+1)<0", "4<4k+4", "k>0"], ms: "Therefore no real roots when k > 0." },
+      { q: "Complete square: 2x²−8x+3", steps: ["2(x²−4x)+3", "2(x−2)²−8+3", "2(x−2)²−5"], ms: "Vertex at (2, −5)." },
+      { q: "Δ=0 means…", steps: ["one repeated root"], ms: "Since Δ = 0, the equation has one repeated real root." }
+    ],
+    trapCards: [
+      { wrong: "x²+6x+5 = (x+3)²+5", hint: "配方要减去(a/2)²=9，不是+5！" },
+      { wrong: "Δ<0 ⇒ 36−20<0 ⇒ 16<0", hint: "先算Δ值再判符号，别跳步！" }
+    ],
+    badges: [{ name: "Δ猎人", condition: "Δ题型零错通关" }]
+  },
+
+  // ==================== 第2关 ====================
+  {
+    chapter: 2,
+    name: "不等式与集合",
+    enName: "Inequalities & Set Notation",
+    icon: "📏",
+    triggers: [
+      { en: "solve the inequality", cn: "解不等式", action: "Move all to LHS, factor, sketch", formula: "Critical values → number line" },
+      { en: "give your answer in interval notation", cn: "用区间表示", action: "Use (−2,3) or (−∞,−2)∪(3,∞)", formula: "∪ for 'or', ∩ for 'and'" },
+      { en: "strict inequality", cn: "严格不等式", action: "Use open circle / ( )", formula: "< or > → open" },
+      { en: "non-strict inequality", cn: "非严格不等式", action: "Use closed circle / [ ]", formula: "≤ or ≥ → closed" }
+    ],
+    fillBlanks: [
+      { q: "x²−x−6 > 0 ⇒ (x−__)(x+__) > 0", answer: ["3", "2"] },
+      { q: "Parabola opens __ ⇒ '>' takes outside", answer: ["upwards"] },
+      { q: "x < −2 or x > 3 in interval: (__,−2)∪(3,__)", answer: ["−∞", "∞"] }
+    ],
+    microTasks: [
+      { q: "Solve x²−x−6 > 0", steps: ["(x−3)(x+2)>0", "critical: x=3, x=−2", "x<−2 or x>3"], ms: "Solution: {x: x<−2} ∪ {x: x>3}." },
+      { q: "Solve 2x²−5x−3 ≤ 0", steps: ["(2x+1)(x−3)≤0", "x=−½, x=3", "−½≤x≤3"], ms: "Solution in interval: [−½, 3]." }
+    ],
+    trapCards: [
+      { wrong: "3 > x > −2", hint: "连写非法！必须用 'or' 或 ∪" },
+      { wrong: "x²>4 ⇒ x>2", hint: "忘了解 x<−2！平方不等式要取两边" }
+    ],
+    badges: [{ name: "区间大师", condition: "区间表示零错" }]
+  },
+
+  // ==================== 第3关 ====================
+  {
+    chapter: 3,
+    name: "指数与对数",
+    enName: "Exponentials & Logarithms",
+    icon: "🔢",
+    triggers: [
+      { en: "solve aˣ = b", cn: "解指数方程", action: "Take log both sides", formula: "x = log(b)/log(a)" },
+      { en: "express as a single logarithm", cn: "合并为一个对数", action: "log a + log b = log(ab)", formula: "log rules" },
+      { en: "to 3 significant figures", cn: "保留3位有效数字", action: "Calculator → round last digit", formula: "s.f. not d.p.!" },
+      { en: "domain of log", cn: "对数定义域", action: "Argument must be > 0", formula: "log(x) ⇒ x>0" }
+    ],
+    fillBlanks: [
+      { q: "log a + log b = log(__)", answer: ["ab"] },
+      { q: "log a − log b = log(__)", answer: ["a/b"] },
+      { q: "3ˣ = 10 ⇒ x = log(10)/log(__)", answer: ["3"] }
+    ],
+    microTasks: [
+      { q: "Solve 3ˣ = 10 to 3 s.f.", steps: ["x log3 = log10", "x = 1/log3", "x ≈ 2.10"], ms: "x = 2.10 (3 s.f.)." },
+      { q: "Express log 6 + log 3 − log 2 as single log", steps: ["log(6×3)−log2", "log18−log2", "log9"], ms: "= log 9." }
+    ],
+    trapCards: [
+      { wrong: "log(3+4) = log3+log4", hint: "log(a+b) ≠ log a + log b！" },
+      { wrong: "log(−2) is fine", hint: "真数必须>0，负数无对数！" }
+    ],
+    badges: [{ name: "对数王者", condition: "对数法则零错" }]
+  },
+
+  // ==================== 第4关 ====================
+  {
+    chapter: 4,
+    name: "函数变换",
+    enName: "Function Transformations",
+    icon: "🎭",
+    triggers: [
+      { en: "f(x) + a", cn: "上移a单位", action: "Vertical shift UP", formula: "Add to y-value" },
+      { en: "f(x + a)", cn: "左移a单位", action: "Horizontal shift LEFT (counter-intuitive!)", formula: "x → x+a means left" },
+      { en: "a·f(x)", cn: "y轴伸缩", action: "Vertical stretch by factor a", formula: "Multiply y-values" },
+      { en: "f(ax)", cn: "x轴压缩", action: "Horizontal stretch by 1/a", formula: "Divide x-values by a" }
+    ],
+    fillBlanks: [
+      { q: "f(x+2) shifts graph __ by 2", answer: ["left"] },
+      { q: "f(2x) makes x-coords __ by 2", answer: ["divided"] },
+      { q: "y = f(x)−3: every point moves __ by 3", answer: ["down"] }
+    ],
+    microTasks: [
+      { q: "Describe transformation: y = f(x−1)+2", steps: ["x−1 → right 1", "y+2 → up 2", "vector (1,2)"], ms: "Translation by vector (1, 2)." },
+      { q: "f(x) → f(2x): point (4,5) becomes?", steps: ["x÷2=2", "y unchanged", "(2,5)"], ms: "New point: (2, 5)." }
+    ],
+    trapCards: [
+      { wrong: "f(x+2) shifts right", hint: "括号内+是左移！反向思维" },
+      { wrong: "f(2x) multiply x by 2", hint: "f(2x) 是x坐标÷2，不是×2！" }
+    ],
+    badges: [{ name: "变换大师", condition: "4种变换全对" }]
+  },
+
+  // ==================== 第5关 ====================
+  {
+    chapter: 5,
+    name: "反函数与复合函数",
+    enName: "Inverse & Composite Functions",
+    icon: "🔄",
+    triggers: [
+      { en: "find f⁻¹(x)", cn: "求反函数", action: "Swap x,y → solve for y", formula: "y=f(x) ⇒ x=f(y)" },
+      { en: "domain of f⁻¹", cn: "反函数定义域", action: "= range of f", formula: "Check original range" },
+      { en: "fg(x)", cn: "复合函数", action: "Substitute g into f (inside out)", formula: "f(g(x))" }
+    ],
+    fillBlanks: [
+      { q: "y = 2x+1 ⇒ f⁻¹(x) = (x−__)/__", answer: ["1", "2"] },
+      { q: "Domain of f⁻¹ = __ of f", answer: ["range"] },
+      { q: "fg(x) means f( __(x) )", answer: ["g"] }
+    ],
+    microTasks: [
+      { q: "Find f⁻¹(x) for f(x)=2x+1, state domain", steps: ["y=2x+1", "x=(y−1)/2", "f⁻¹(x)=(x−1)/2"], ms: "Domain: x ∈ ℝ (since range of f is ℝ)." },
+      { q: "f(x)=x+1, g(x)=x². Find fg(2)", steps: ["g(2)=4", "f(4)=5"], ms: "fg(2) = 5." }
+    ],
+    trapCards: [
+      { wrong: "f⁻¹ domain = domain of f", hint: "反函数定义域 = 原函数的值域！" },
+      { wrong: "fg(x) = f(x)·g(x)", hint: "fg是复合不是乘积！" }
+    ],
+    badges: [{ name: "反函数猎人", condition: "反函数题零错" }]
+  },
+
+  // ==================== 第6关 ====================
+  {
+    chapter: 6,
+    name: "等差与等比数列",
+    enName: "AP & GP Sequences",
+    icon: "📊",
+    triggers: [
+      { en: "arithmetic progression", cn: "等差数列", action: "uₙ = a+(n−1)d", formula: "Common difference d" },
+      { en: "geometric progression", cn: "等比数列", action: "uₙ = arⁿ⁻¹", formula: "Common ratio r" },
+      { en: "sum of first n terms (GP)", cn: "等比数列前n项和", action: "Sₙ = a(1−rⁿ)/(1−r)", formula: "Denominator: 1−r" },
+      { en: "sum exceeds 1000", cn: "和超过1000", action: "Set Sₙ > 1000, solve for n", formula: "Inequality" }
+    ],
+    fillBlanks: [
+      { q: "AP: uₙ = a + (n−1)__", answer: ["d"] },
+      { q: "GP: Sₙ = a(1−rⁿ)/(__)", answer: ["1−r"] },
+      { q: "From 3rd to 10th term: n = 10−3+__ = __", answer: ["1", "8"] }
+    ],
+    microTasks: [
+      { q: "GP: 2,6,18,… Find S₁₀", steps: ["a=2, r=3", "S₁₀=2(1−3¹⁰)/(1−3)", "S₁₀=59048"], ms: "S₁₀ = 59048." },
+      { q: "AP: 5,8,11,… Find n when uₙ=50", steps: ["d=3, a=5", "5+(n−1)3=50", "n=16"], ms: "n = 16." }
+    ],
+    trapCards: [
+      { wrong: "3rd to 10th ⇒ n=10", hint: "项数=10−3+1=8！不是10" },
+      { wrong: "GP sum denom = r−1", hint: "GP求和分母是1−r（r<1时）或rⁿ−1/r−1（r>1时）" }
+    ],
+    badges: [{ name: "数列之王", condition: "AP+GP全对" }]
+  },
+
+  // ==================== 第7关 ====================
+  {
+    chapter: 7,
+    name: "直线方程",
+    enName: "Equations of Lines",
+    icon: "📍",
+    triggers: [
+      { en: "gradient of line", cn: "斜率", action: "m = (y₂−y₁)/(x₂−x₁)", formula: "Rise over run" },
+      { en: "perpendicular lines", cn: "垂直", action: "m₁·m₂ = −1", formula: "m₂ = −1/m₁" },
+      { en: "parallel lines", cn: "平行", action: "m₁ = m₂", formula: "Same gradient" },
+      { en: "perpendicular bisector", cn: "垂直平分线", action: "Midpoint + perp gradient", formula: "y−y₁ = −1/m (x−x₁)" }
+    ],
+    fillBlanks: [
+      { q: "m = (y₂−y₁)/(__−x₁)", answer: ["x₂"] },
+      { q: "Perpendicular gradient = −__/m", answer: ["1"] },
+      { q: "Midpoint = ((x₁+x₂)/2, (y₁+__)/2)", answer: ["y₂"] }
+    ],
+    microTasks: [
+      { q: "Find perp bisector of AB: A(1,2) B(3,4)", steps: ["m_AB=1", "perp m=−1", "mid=(2,3)", "y−3=−1(x−2) ⇒ x+y−5=0"], ms: "Equation: x + y − 5 = 0." }
+    ],
+    trapCards: [
+      { wrong: "perp gradient = 1/m", hint: "垂直斜率是−1/m，负号别忘了！" },
+      { wrong: "y=mx+c when asked for ax+by+c=0", hint: "题目要求一般式就要化成ax+by+c=0" }
+    ],
+    badges: [{ name: "斜率猎人", condition: "垂直平行零错" }]
+  },
+
+  // ==================== 第8关 ====================
+  {
+    chapter: 8,
+    name: "圆的方程",
+    enName: "Equations of Circles",
+    icon: "⭕",
+    triggers: [
+      { en: "centre and radius", cn: "圆心和半径", action: "Complete square", formula: "(x−a)²+(y−b)²=r²" },
+      { en: "show line is tangent", cn: "证明切线", action: "Distance from centre = radius OR Δ=0", formula: "d = |Ax₀+By₀+C|/√(A²+B²)" },
+      { en: "tangent perpendicular to radius", cn: "切线⊥半径", action: "m_tan × m_rad = −1", formula: "Negative reciprocal" }
+    ],
+    fillBlanks: [
+      { q: "(x−2)²+(y+3)²=16: centre=(__,__), r=__", answer: ["2", "−3", "4"] },
+      { q: "x²−4x+y²=0 ⇒ (x−2)²+y²=__ ⇒ r=__", answer: ["4", "2"] }
+    ],
+    microTasks: [
+      { q: "Find centre and radius: x²+y²−4x+6y−12=0", steps: ["(x−2)²−4+(y+3)²−9−12=0", "(x−2)²+(y+3)²=25"], ms: "Centre (2,−3), radius 5." }
+    ],
+    trapCards: [
+      { wrong: "(x−2)² centre is x=−2", hint: "符号相反！(x−a)² 的圆心是 +a" },
+      { wrong: "r²=4 ⇒ r=4", hint: "r²=4 ⇒ r=2，要开根号！" }
+    ],
+    badges: [{ name: "圆之守护者", condition: "配方+圆心零错" }]
+  },
+
+  // ==================== 第9关 ====================
+  {
+    chapter: 9,
+    name: "三角函数方程",
+    enName: "Trigonometric Equations",
+    icon: "📡",
+    triggers: [
+      { en: "solve sin x = 0.5", cn: "解正弦方程", action: "Principal + ASTC quadrants", formula: "x=30°, 150° (0≤x≤360°)" },
+      { en: "solve cos x = −0.5", cn: "解余弦方程", action: "Q2+Q3: 180°±θ", formula: "x=120°, 240°" },
+      { en: "period of sin 2x", cn: "周期", action: "Period = 360°/n", formula: "sin(nx): period=360°/n" },
+      { en: "amplitude", cn: "振幅", action: "Coefficient of sin/cos", formula: "y=a·sin x ⇒ amp=a" }
+    ],
+    fillBlanks: [
+      { q: "sin x = 0.5 ⇒ x = 30°, __°", answer: ["150"] },
+      { q: "cos x = −½ ⇒ x = 120°, __°", answer: ["240"] },
+      { q: "Period of sin(3x) = 360°/__ = __°", answer: ["3", "120"] }
+    ],
+    microTasks: [
+      { q: "Solve 2sin x − 1 = 0 for 0≤x≤360°", steps: ["sin x = 0.5", "Q1: 30°", "Q2: 180°−30°=150°"], ms: "x = 30°, 150°." }
+    ],
+    trapCards: [
+      { wrong: "sin x=0.5 ⇒ only x=30°", hint: "sin在第二象限也是正的！还要150°" },
+      { wrong: "radians given, answer in degrees", hint: "题目给弧度，答案也要弧度！" }
+    ],
+    badges: [{ name: "三角征服者", condition: "4象限全对" }]
+  },
+
+  // ==================== 第10关 ====================
+  {
+    chapter: 10,
+    name: "正余弦定理",
+    enName: "Sine & Cosine Rules",
+    icon: "📐",
+    triggers: [
+      { en: "sine rule", cn: "正弦定理", action: "a/sinA = b/sinB = c/sinC", formula: "Two angles + one side → find side" },
+      { en: "cosine rule", cn: "余弦定理", action: "a² = b²+c²−2bc·cosA", formula: "Two sides + included angle → third side" },
+      { en: "ambiguous case (SSA)", cn: "SSA歧义", action: "Check if angle could be obtuse!", formula: "Larger side ↔ larger angle" },
+      { en: "to 1 decimal place", cn: "保留1位小数", action: "Keep full precision until final step", formula: "Round only at end" }
+    ],
+    fillBlanks: [
+      { q: "a/sinA = b/__", answer: ["sinB"] },
+      { q: "a² = b²+c²−2bc·cos(__)", answer: ["A"] },
+      { q: "SSA: calculator gives acute, check __ angle", answer: ["obtuse"] }
+    ],
+    microTasks: [
+      { q: "In △ABC: a=6, B=50°, C=60°, find b", steps: ["A=180−50−60=70°", "6/sin70°=b/sin50°", "b=6sin50°/sin70°≈4.87"], ms: "b ≈ 4.9 (1 d.p.)." },
+      { q: "Find c: a=8, b=6, C=50°", steps: ["c²=64+36−96cos50°", "c²≈38.29", "c≈6.19"], ms: "c ≈ 6.19." }
+    ],
+    trapCards: [
+      { wrong: "SSA: always take calculator answer", hint: "SSA可能钝角！用大边对大角验证" },
+      { wrong: "Calculator in RAD mode for degrees", hint: "算度数确保DEG模式！" }
+    ],
+    badges: [{ name: "SSA识破者", condition: "歧义题零错" }]
+  },
+
+  // ==================== 第11关 ====================
+  {
+    chapter: 11,
+    name: "三角形面积公式",
+    enName: "Area of Triangle",
+    icon: "🔺",
+    triggers: [
+      { en: "area of triangle", cn: "三角形面积", action: "½ab·sinC (two sides + included angle)", formula: "Area = ½ab sinC" },
+      { en: "exact area", cn: "精确值", action: "Use exact sin values (√3/2 etc.)", formula: "NO calculator decimals!" },
+      { en: "total shaded area", cn: "总阴影面积", action: "Sector area − triangle area", formula: "Composite area" }
+    ],
+    fillBlanks: [
+      { q: "Area = ½·__·__·sinC", answer: ["a", "b"] },
+      { q: "sin60° = __", answer: ["√3/2"] },
+      { q: "Exact area: ½(4)(6)sin60° = 12·__ = __", answer: ["√3/2", "6√3"] }
+    ],
+    microTasks: [
+      { q: "Find exact area: sides 4 and 6, included angle 60°", steps: ["Area=½·4·6·sin60°", "=12·(√3/2)", "=6√3"], ms: "Exact area = 6√3." }
+    ],
+    trapCards: [
+      { wrong: "Area=½·4·6·sin60°=10.39", hint: "Exact要求必须留√3，按计算器=0分！" },
+      { wrong: "Use angle opposite to side a", hint: "必须是两边及其'夹角'，不是对角！" }
+    ],
+    badges: [{ name: "精确值守护者", condition: "Exact题零错" }]
+  },
+
+  // ==================== 第12关 ====================
+  {
+    chapter: 12,
+    name: "向量基础运算",
+    enName: "Vector Arithmetic",
+    icon: "➡️",
+    triggers: [
+      { en: "vector AB", cn: "向量AB", action: "OB − OA (end − start)", formula: "Terminal − initial" },
+      { en: "AB + BC", cn: "向量加法", action: "Head to tail → AC", formula: "Triangle law" },
+      { en: "midpoint vector", cn: "中点向量", action: "OM = (OA+OB)/2", formula: "Average of endpoints" }
+    ],
+    fillBlanks: [
+      { q: "AB = OB __ OA", answer: ["−"] },
+      { q: "If OA=a, OB=b, then AB = __", answer: ["b−a"] },
+      { q: "Midpoint M: OM = (a+__)/2", answer: ["b"] }
+    ],
+    microTasks: [
+      { q: "OA = 3i+j, OB = i−2j. Find AB", steps: ["AB = (i−2j)−(3i+j)", "= i−3i −2j−j", "= −2i−3j"], ms: "AB = −2i − 3j." }
+    ],
+    trapCards: [
+      { wrong: "AB = OA − OB", hint: "方向反了！终点减起点=OB−OA" },
+      { wrong: "(i−2j)−(3i+j) = −2i−j", hint: "去括号−2j−j=−3j，所有符号都要变！" }
+    ],
+    badges: [{ name: "向量骑士", condition: "方向零错" }]
+  },
+
+  // ==================== 第13关 ====================
+  {
+    chapter: 13,
+    name: "向量模长与单位向量",
+    enName: "Magnitude & Unit Vectors",
+    icon: "📏",
+    triggers: [
+      { en: "magnitude of vector", cn: "模长", action: "|v| = √(x²+y²)", formula: "Pythagoras" },
+      { en: "unit vector in direction of v", cn: "单位向量", action: "v / |v|", formula: "v̂ = v/|v|" }
+    ],
+    fillBlanks: [
+      { q: "|3i−4j| = √(3²+(__)²) = √25 = __", answer: ["−4", "5"] },
+      { q: "Unit vector = (1/__)·(3i−4j) = __i − __j", answer: ["5", "3/5", "4/5"] }
+    ],
+    microTasks: [
+      { q: "Find unit vector in direction of 3i−4j", steps: ["|v|=√(9+16)=5", "v̂=(1/5)(3i−4j)", "= 3/5 i − 4/5 j"], ms: "Unit vector = (3/5)i − (4/5)j." }
+    ],
+    trapCards: [
+      { wrong: "|v|=25 (forgot square root)", hint: "√(x²+y²) 算完25要开根号=5！" },
+      { wrong: "Unit vector = (3,−4)", hint: "单位向量必须带i,j或写成分数/列向量" }
+    ],
+    badges: [{ name: "模长大师", condition: "模长单位向量零错" }]
+  },
+
+  // ==================== 第14关 ====================
+  {
+    chapter: 14,
+    name: "切线与法线",
+    enName: "Tangents & Normals",
+    icon: "📈",
+    triggers: [
+      { en: "equation of tangent", cn: "切线方程", action: "y−y₁ = m(x−x₁), m=f'(x₁)", formula: "dy/dx at point" },
+      { en: "equation of normal", cn: "法线方程", action: "y−y₁ = −1/m (x−x₁)", formula: "Negative reciprocal!" },
+      { en: "tangent parallel to y=2x", cn: "切线平行", action: "f'(x) = 2", formula: "Set derivative = gradient" }
+    ],
+    fillBlanks: [
+      { q: "Normal gradient = −__/m", answer: ["1"] },
+      { q: "If f'(2)=4, normal m = __", answer: ["−1/4"] },
+      { q: "Tangent: y−y₁ = m(x−__)", answer: ["x₁"] }
+    ],
+    microTasks: [
+      { q: "Curve y=x², find tangent & normal at x=2", steps: ["y=4, point(2,4)", "dy/dx=2x=4", "T: y−4=4(x−2)⇒y=4x−4", "N: y−4=−¼(x−2)⇒y=−¼x+9/2"], ms: "Tangent: y=4x−4. Normal: y=−¼x+9/2." }
+    ],
+    trapCards: [
+      { wrong: "Normal slope = 1/m", hint: "法线=−1/m，负号！" },
+      { wrong: "Only given x=2, skip finding y", hint: "必须代回原方程求y坐标！" }
+    ],
+    badges: [{ name: "切线大师", condition: "法线斜率零错" }]
+  },
+
+  // ==================== 第15关 ====================
+  {
+    chapter: 15,
+    name: "驻点与极值",
+    enName: "Stationary Points",
+    icon: "⛰️",
+    triggers: [
+      { en: "find stationary points", cn: "求驻点", action: "Set f'(x)=0, solve for x, find y", formula: "Coordinates (x,y)!" },
+      { en: "nature of stationary point", cn: "判断极大/极小", action: "f''(x)>0 → min; f''(x)<0 → max", formula: "Second derivative test" },
+      { en: "determine maximum or minimum", cn: "判断极值", action: "State f''(x) value + conclusion", formula: "Must write f''(x)>0!" }
+    ],
+    fillBlanks: [
+      { q: "f'(x)=0 ⇒ stationary __", answer: ["point"] },
+      { q: "f''(x)>0 ⇒ __imum", answer: ["min"] },
+      { q: "y= x³−3x: y' = 3x²−3 = 0 ⇒ x=±__", answer: ["1"] }
+    ],
+    microTasks: [
+      { q: "Find and classify SPs: y=x³−3x", steps: ["y'=3x²−3=0 ⇒ x=±1", "x=1: y=−2; x=−1: y=2", "y''=6x", "x=1: y''=6>0→min", "x=−1: y''=−6<0→max"], ms: "Min at (1,−2), Max at (−1,2)." }
+    ],
+    trapCards: [
+      { wrong: "SP at x=1 (only x)", hint: "Stationary Point是坐标(x,y)，不是单独x！" },
+      { wrong: "It is a minimum (no math shown)", hint: "必须写 f''(1)=6>0，不能只写文字" }
+    ],
+    badges: [{ name: "极值猎人", condition: "二阶导判断零错" }]
+  },
+
+  // ==================== 第16关 ====================
+  {
+    chapter: 16,
+    name: "不定积分与求常数c",
+    enName: "Integration & Finding c",
+    icon: "∫",
+    triggers: [
+      { en: "integrate axⁿ", cn: "积分幂函数", action: "Add 1 to power, divide by new power", formula: "∫axⁿdx = a/(n+1)·xⁿ⁺¹ + c" },
+      { en: "find c", cn: "求常数c", action: "Substitute known point (x,y)", formula: "y = f(x) + c" },
+      { en: "curve passes through (1,5)", cn: "曲线过点", action: "Plug x=1,y=5 → solve c", formula: "Always write +c first!" }
+    ],
+    fillBlanks: [
+      { q: "∫x²dx = x__/__ + c", answer: ["³", "3"] },
+      { q: "∫2x dx = x² + __", answer: ["c"] },
+      { q: "y=x²+c, passes (1,3): 3=1+c ⇒ c=__", answer: ["2"] }
+    ],
+    microTasks: [
+      { q: "∫(3x²+2)dx, curve passes (1,3)", steps: ["y=x³+2x+c", "3=1+2+c ⇒ c=0", "y=x³+2x"], ms: "Equation: y = x³ + 2x." }
+    ],
+    trapCards: [
+      { wrong: "∫x²dx = x²/2 + c", hint: "幂函数积分：指数+1！x²→x³/3" },
+      { wrong: "Integrated but forgot +c", hint: "不写+c直接扣1-2分！" }
+    ],
+    badges: [{ name: "+c教徒", condition: "积分必写+c" }]
+  },
+
+  // ==================== 第17关 ====================
+  {
+    chapter: 17,
+    name: "定积分求面积",
+    enName: "Definite Integration",
+    icon: "📐",
+    triggers: [
+      { en: "area under curve", cn: "曲线下面积", action: "∫ₐᵇ f(x)dx", formula: "Upper − lower" },
+      { en: "area between curves", cn: "曲线间面积", action: "∫ₐᵇ [upper − lower] dx", formula: "Top function − bottom" },
+      { en: "exact area", cn: "精确面积", action: "Keep fractions / √ values", formula: "NO decimal!" },
+      { en: "find limits of integration", cn: "求积分上下限", action: "Set f(x)=g(x), solve", formula: "Intersection points" }
+    ],
+    fillBlanks: [
+      { q: "∫₀¹ x² dx = [x³/__]₀¹ = __", answer: ["3", "1/3"] },
+      { q: "Area between y=x and y=x²: ∫(__−x²)dx from 0 to 1", answer: ["x"] },
+      { q: "∫₀¹(x−x²)dx = [x²/2−x³/3]₀¹ = ½−__ = __", answer: ["⅓", "1/6"] }
+    ],
+    microTasks: [
+      { q: "Find area between y=x and y=x² from x=0 to x=1", steps: ["x−x²=0 ⇒ x=0,1", "∫₀¹(x−x²)dx", "=[x²/2−x³/3]₀¹", "=½−⅓=⅙"], ms: "Exact area = 1/6." }
+    ],
+    trapCards: [
+      { wrong: "∫f(x)dx without brackets [ ]ₐᵇ", hint: "必须写方括号！这是过程分" },
+      { wrong: "Area = −1/6 (from integral)", hint: "面积取绝对值！负面积是x轴下方" }
+    ],
+    badges: [{ name: "面积大师", condition: "上减下零错" }]
+  },
+
+  // ==================== 第18关 ====================
+  {
+    chapter: 18,
+    name: "函数图像绘制",
+    enName: "Sketching Graphs",
+    icon: "🎨",
+    triggers: [
+      { en: "vertical asymptote", cn: "垂直渐近线", action: "Denominator = 0", formula: "x = a" },
+      { en: "horizontal asymptote", cn: "水平渐近线", action: "Limit as x→±∞", formula: "y = value" },
+      { en: "y-intercept", cn: "y轴截距", action: "Set x=0", formula: "y=f(0)" },
+      { en: "x-intercept", cn: "x轴截距", action: "Set y=0", formula: "f(x)=0" }
+    ],
+    fillBlanks: [
+      { q: "VA: denominator x−2=0 ⇒ x=__", answer: ["2"] },
+      { q: "y-int: x=0 ⇒ y=__", answer: ["f(0)"] },
+      { q: "HA: as x→∞, y→__", answer: ["limit value"] }
+    ],
+    microTasks: [
+      { q: "Sketch y=(x−1)/((x−2)), state asymptotes & intercepts", steps: ["VA: x=2", "HA: y=1 (degree equal)", "y-int: x=0 ⇒ y=½", "x-int: y=0 ⇒ x=1"], ms: "VA: x=2; HA: y=1; intercepts (0,½),(1,0)." }
+    ],
+    trapCards: [
+      { wrong: "Graph looks nice but no labels", hint: "不标坐标和渐近线方程扣2分！" },
+      { wrong: "Reciprocal function looks like parabola", hint: "反比例函数=两支曲线，不是抛物线！" }
+    ],
+    badges: [{ name: "绘图大师", condition: "截距+渐近线全标" }]
+  }
+];
+
+// ============================================================
+// 英文避雷词表（全局）
+// ============================================================
+const ENGLISH_TRAPS = [
+  { term: "complete the square", meaning: "配方（不是展开！）", action: "写 a(x−h)²+k" },
+  { term: "no real roots", meaning: "无实根 → Δ<0", action: "不是 no solution!" },
+  { term: "two equal roots", meaning: "两个相等实根 → Δ=0", action: "不是 no roots" },
+  { term: "exact value", meaning: "精确值 → 留根号/分数", action: "禁止按计算器出小数" },
+  { term: "to 3 significant figures", meaning: "3位有效数字", action: "不是3位小数！" },
+  { term: "perpendicular", meaning: "垂直 → m₁m₂=−1", action: "斜率=−1/m" },
+  { term: "normal", meaning: "法线 → 斜率=−1/m", action: "不是切线！" },
+  { term: "tangent", meaning: "切线 → 斜率=f'(x)", action: "不是法线！" },
+  { term: "stationary point", meaning: "驻点 → 坐标(x,y)", action: "不是单独的x！" },
+  { term: "hence", meaning: "用上面的结果", action: "不能跳步重算" },
+  { term: "show that", meaning: "证明题 → 过程必须完整", action: "不能只写结论" }
+];
+
+// ============================================================
+// 满分句式模板（全局）
+// ============================================================
+const MS_SENTENCES = [
+  "Since Δ = __ > 0, the equation has two distinct real roots.",
+  "Since Δ = 0, the equation has one repeated real root.",
+  "Since Δ = __ < 0, the equation has no real roots when k > __.",
+  "Therefore, the vertex is (__ , __).",
+  "Hence the exact area = __√__.",
+  "The equation of the tangent is y = __x + __.",
+  "The equation of the normal is y = −1/__ x + __.",
+  "f''(x) = __ > 0 ⇒ minimum at (__, __).",
+  "f''(x) = __ < 0 ⇒ maximum at (__, __).",
+  "Area = [__]ₐᵇ = __ − __ = __."
+];
+</script>
+<script>
+/* ============================================================
+ * Formula Quest · 游戏引擎
+ * ============================================================ */
+
+// ---- 全局状态 ----
+const USER_LIST_KEY = 'fq_user_list';
+const ACTIVE_USER_KEY = 'fq_active_user';
+let currentUser = null;      // 当前学生名
+function storageKey(){ return 'fq_save_' + (currentUser || 'default'); }
+
+const state = {
+  current: null,      // 当前关卡数据
+  chapter: 0,         // 当前关卡编号
+  phase: 0,           // 0=闪卡 1=挖空 2=BOSS
+  hp: 100,
+  bossHP: 100,
+  combo: 0,
+  maxCombo: 0,
+  phaseErrors: 0,     // 当前阶段错误数
+  totalErrors: 0,
+  frenzy: false,      // 公式狂暴
+  flashIdx: 0,
+  flashCorrect: 0,
+  fbIdx: 0,
+  bossIdx: 0,
+  bossCorrect: 0,
+  msEarned: false,
+  isDaily: false,
+  dailyQueue: [],
+  // 存档
+  save: { stars:{}, bestCombo:0, badges:[], revengeCards:[] }
+};
+
+// ---- 存档系统 ----
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(storageKey());
+    if(raw) state.save = JSON.parse(raw);
+  }catch(e){}
+  if(!state.save.stars) state.save.stars={};
+  if(!state.save.badges) state.save.badges=[];
+  if(!state.save.revengeCards) state.save.revengeCards=[];
+}
+function persist(){
+  try{ localStorage.setItem(storageKey(), JSON.stringify(state.save)); }catch(e){}
+}
+
+// ---- 段位计算 ----
+function getRank(totalStars){
+  if(totalStars>=48) return {name:'钻石',color:'#00d9ff',bg:'rgba(0,217,255,.15)'};
+  if(totalStars>=30) return {name:'黄金',color:'#ffd166',bg:'rgba(255,209,102,.15)'};
+  if(totalStars>=12) return {name:'白银',color:'#c0c0c0',bg:'rgba(192,192,192,.12)'};
+  return {name:'青铜',color:'#c77dff',bg:'rgba(123,44,191,.2)'};
+}
+
+// ---- 关卡解锁 ----
+function isUnlocked(ch){
+  if(ch<=1) return true;
+  // 前一关至少2星才能解锁
+  return (state.save.stars[String(ch-1)]||0) >= 2;
+}
+
+// ---- 地图渲染 ----
+function renderMap(){
+  const grid = document.getElementById('level-grid');
+  grid.innerHTML='';
+  const totalStars = Object.values(state.save.stars).reduce((a,b)=>a+b,0);
+  document.getElementById('total-stars').textContent = totalStars;
+  document.getElementById('best-combo').textContent = state.save.bestCombo||0;
+  document.getElementById('badge-count').textContent = state.save.badges.length;
+
+  const rank = getRank(totalStars);
+  const rb = document.getElementById('rank-badge');
+  rb.textContent = rank.name;
+  rb.style.background = rank.bg;
+  rb.style.color = rank.color;
+
+  // 更新顶栏用户按钮
+  const ub = document.getElementById('user-btn');
+  if(ub){
+    ub.textContent = '👤 ' + (currentUser || '未登录');
+  }
+
+  QUEST_DATA.forEach((q,i)=>{
+    const stars = state.save.stars[String(q.chapter)]||0;
+    const unlocked = isUnlocked(q.chapter);
+    const card = document.createElement('div');
+    card.className = 'level-card '+(unlocked?'unlocked':'locked')+(stars>0?' cleared':'');
+    card.style.animationDelay = (i*0.04)+'s';
+    let starHTML='';
+    for(let s=0;s<3;s++){
+      starHTML += '<span class="'+(s<stars?'star-filled':'star-empty')+'">★</span>';
+    }
+    card.innerHTML = `
+      <div class="lc-icon">${q.icon}</div>
+      <div class="lc-num">第 ${q.chapter} 关</div>
+      <div class="lc-name">${q.name}</div>
+      <div class="lc-stars">${starHTML}</div>
+      <div class="lc-lock ${unlocked?'hidden':''}">🔒</div>
+    `;
+    if(unlocked){
+      card.addEventListener('click',()=>startBattle(q.chapter));
+    }
+    grid.appendChild(card);
+  });
+}
+
+// ---- 开始战斗 ----
+function startBattle(ch, isDaily=false){
+  state.current = QUEST_DATA.find(q=>q.chapter===ch);
+  if(!state.current) return;
+  state.chapter = ch;
+  state.isDaily = isDaily;
+  state.phase = 0;
+  state.hp = 100;
+  state.combo = 0;
+  state.maxCombo = 0;
+  state.totalErrors = 0;
+  state.frenzy = false;
+  state.msEarned = false;
+  state.flashIdx = 0;
+  state.flashCorrect = 0;
+  state.fbIdx = 0;
+  state.bossIdx = 0;
+  state.bossCorrect = 0;
+  state.phaseErrors = 0;
+
+  document.getElementById('map-page').classList.remove('active');
+  document.getElementById('result-page').classList.remove('active');
+  document.getElementById('battle-page').classList.add('active');
+  document.getElementById('battle-title').textContent = state.current.icon+' '+state.current.name;
+  document.getElementById('boss-hud-item').style.display='none';
+
+  startPhase(0);
+}
+
+// ---- 阶段启动 ----
+function startPhase(phase){
+  state.phase = phase;
+  state.phaseErrors = 0;
+  const stepEl = document.getElementById('phase-step');
+  const titleEl = document.getElementById('phase-title');
+  const subEl = document.getElementById('phase-sub');
+
+  if(phase===0){
+    stepEl.textContent='PHASE 1 / 3';
+    titleEl.textContent='闪卡突袭';
+    subEl.textContent='看到英文触发词，选出对应的中文含义';
+    renderFlashcard();
+  }else if(phase===1){
+    stepEl.textContent='PHASE 2 / 3';
+    titleEl.textContent='挖空迷宫';
+    subEl.textContent='拖拽下方词块填入空格，拼出完整公式';
+    renderFillBlank();
+  }else if(phase===2){
+    stepEl.textContent='PHASE 3 / 3';
+    titleEl.textContent='BOSS战';
+    subEl.textContent='按步骤写出解题过程，击败BOSS！';
+    state.bossHP = 100;
+    document.getElementById('boss-hud-item').style.display='block';
+    updateHUD();
+    renderBossTask();
+  }
+}
+
+// ---- HUD更新 ----
+function updateHUD(){
+  const hpFill = document.getElementById('hp-fill');
+  const hpVal = document.getElementById('hp-value');
+  hpFill.style.width = Math.max(0,state.hp)+'%';
+  hpVal.textContent = Math.max(0,state.hp);
+  if(state.hp<30) hpFill.classList.add('low'); else hpFill.classList.remove('low');
+
+  const bossFill = document.getElementById('boss-fill');
+  const bossVal = document.getElementById('boss-value');
+  if(state.phase===2){
+    bossFill.style.width = Math.max(0,state.bossHP)+'%';
+    bossVal.textContent = Math.max(0,state.bossHP);
+  }
+
+  // 连击
+  const cd = document.getElementById('combo-display');
+  const cn = document.getElementById('combo-num');
+  const cl = document.getElementById('combo-label');
+  if(state.combo>0){
+    cn.style.display='inline';
+    cn.textContent = state.combo+'x';
+    cd.classList.add('has-combo');
+    if(state.combo>=5){
+      cd.classList.add('frenzy');
+      cl.textContent='公式狂暴！';
+      state.frenzy = true;
+    }else{
+      cd.classList.remove('frenzy');
+      cl.textContent='连击中';
+      state.frenzy = false;
+    }
+  }else{
+    cn.style.display='none';
+    cd.classList.remove('has-combo','frenzy');
+    cl.textContent='';
+  }
+}
+
+// ---- 连击 ----
+function bumpCombo(){
+  state.combo++;
+  if(state.combo>state.maxCombo) state.maxCombo=state.combo;
+  if(state.combo>(state.save.bestCombo||0)){
+    state.save.bestCombo = state.combo;
+    persist();
+  }
+  updateHUD();
+}
+function breakCombo(){
+  if(state.combo>=5) showFloat('连击中断！','neg');
+  state.combo = 0;
+  state.frenzy = false;
+  updateHUD();
+}
+
+// ---- HP操作 ----
+function damagePlayer(amount){
+  state.hp = Math.max(0, state.hp - amount);
+  updateHUD();
+  if(state.hp<=0){
+    setTimeout(()=>showResult(false), 600);
+  }
+}
+function damageBoss(amount){
+  state.bossHP = Math.max(0, state.bossHP - amount);
+  const avatar = document.querySelector('.boss-avatar');
+  if(avatar){avatar.classList.add('hit'); setTimeout(()=>avatar.classList.remove('hit'),400);}
+  updateHUD();
+  if(state.bossHP<=0){
+    setTimeout(()=>showResult(true), 600);
+  }
+}
+
+// ---- 浮动反馈 ----
+function showFloat(text, type){
+  const el = document.createElement('div');
+  el.className = 'float-feedback '+(type||'pos');
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1000);
+}
+
+// ---- Toast ----
+function showToast(text, type){
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast '+(type||'');
+  el.textContent = text;
+  c.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},2500);
+}
+
+/* ============================================================
+ * 阶段1: 闪卡突袭
+ * ============================================================ */
+function renderFlashcard(){
+  const content = document.getElementById('battle-content');
+  const triggers = state.current.triggers;
+  if(state.flashIdx >= triggers.length){
+    // 闪卡阶段结束
+    if(state.phaseErrors===0) showToast('闪卡全对！+10 HP','badge');
+    state.hp = Math.min(100, state.hp+10);
+    updateHUD();
+    setTimeout(()=>startPhase(1), 600);
+    return;
+  }
+
+  const t = triggers[state.flashIdx];
+  // 生成4个选项
+  const options = [t.cn];
+  const others = triggers.filter(x=>x.cn!==t.cn).map(x=>x.cn);
+  shuffle(others);
+  while(options.length<4 && others.length>0) options.push(others.shift());
+  if(options.length<4){
+    // 从其他关补充选项
+    const pool = [];
+    QUEST_DATA.forEach(q=>q.triggers.forEach(x=>pool.push(x.cn)));
+    shuffle(pool);
+    pool.forEach(cn=>{ if(options.length<4 && !options.includes(cn)) options.push(cn); });
+  }
+  shuffle(options);
+
+  content.innerHTML = `
+    <div class="flashcard-area">
+      <div class="flashcard" id="flashcard">
+        <div class="fc-en" id="fc-en">${t.en}</div>
+        <div class="fc-cn">选出对应的中文含义 ↓</div>
+        <div class="fc-prompt" style="font-size:32px;color:var(--text-muted);margin:10px 0">❓</div>
+        <div class="fc-answer" id="fc-answer">
+          <div style="font-size:20px;font-weight:800;color:var(--green-g)">${t.cn}</div>
+          <div class="fc-formula">${t.formula}</div>
+          <div class="fc-action">→ ${t.action}</div>
+        </div>
+        <div class="fc-tap-hint">答对后点击卡片查看公式</div>
+      </div>
+      <div class="flash-options" id="flash-options">
+        ${options.map(o=>`<div class="flash-opt" data-val="${escapeAttr(o)}">${o}</div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('.flash-opt').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(el.classList.contains('correct')||el.classList.contains('wrong')) return;
+      const val = el.getAttribute('data-val');
+      if(val===t.cn){
+        el.classList.add('correct');
+        bumpCombo();
+        state.flashCorrect++;
+        showFloat('+10 ✔','pos');
+        // 翻转卡片
+        document.getElementById('flashcard').classList.add('flipped');
+        setTimeout(()=>{
+          state.flashIdx++;
+          renderFlashcard();
+        }, 1800);
+      }else{
+        el.classList.add('wrong');
+        state.phaseErrors++;
+        state.totalErrors++;
+        breakCombo();
+        damagePlayer(10);
+        showFloat('-10 ✘','neg');
+        // 加入复仇库
+        addRevenge({wrong:`闪卡: ${t.en} → ${val}`, hint:`正确: ${t.cn} | ${t.formula}`});
+        // 标出正确答案
+        document.querySelectorAll('.flash-opt').forEach(o=>{
+          if(o.getAttribute('data-val')===t.cn) o.classList.add('correct');
+        });
+        setTimeout(()=>{
+          state.flashIdx++;
+          renderFlashcard();
+        }, 1500);
+      }
+    });
+  });
+}
+
+/* ============================================================
+ * 阶段2: 挖空迷宫（拖拽）
+ * ============================================================ */
+function renderFillBlank(){
+  const content = document.getElementById('battle-content');
+  const blanks = state.current.fillBlanks;
+  if(state.fbIdx >= blanks.length){
+    if(state.phaseErrors===0) showToast('挖空全对！+5 HP','badge');
+    state.hp = Math.min(100, state.hp+5);
+    updateHUD();
+    setTimeout(()=>startPhase(2), 600);
+    return;
+  }
+
+  const fb = blanks[state.fbIdx];
+  // 生成token池：正确答案 + 干扰项
+  const correctTokens = fb.answer.slice();
+  const distractors = generateDistractors(fb.answer, state.current);
+  const allTokens = correctTokens.concat(distractors);
+  shuffle(allTokens);
+
+  // 将题目中的 __ 替换为空位标记
+  const parts = fb.q.split('__');
+  let qHTML='';
+  for(let i=0;i<parts.length;i++){
+    qHTML += escapeHTML(parts[i]);
+    if(i<fb.answer.length){
+      qHTML += `<span class="fb-blank" data-blank="${i}" data-correct="${escapeAttr(fb.answer[i])}">___</span>`;
+    }
+  }
+
+  content.innerHTML = `
+    <div class="fillblank-area">
+      <div class="fb-question">${qHTML}</div>
+      <div class="fb-token-pool" id="token-pool">
+        ${allTokens.map((t,i)=>`<div class="fb-token" data-val="${escapeAttr(t)}" data-idx="${i}">${escapeHTML(t)}</div>`).join('')}
+      </div>
+      <div class="fb-actions">
+        <button class="fb-btn skip" id="fb-skip">跳过</button>
+        <button class="fb-btn submit" id="fb-submit" disabled style="opacity:.5">提交</button>
+      </div>
+    </div>
+  `;
+
+  initDragDrop(fb);
+  document.getElementById('fb-skip').addEventListener('click',()=>{
+    state.phaseErrors++;
+    state.totalErrors++;
+    breakCombo();
+    damagePlayer(8);
+    showFloat('跳过 -8','neg');
+    addRevenge({wrong:`挖空: ${fb.q}`, hint:`答案: ${fb.answer.join(', ')}`});
+    state.fbIdx++;
+    setTimeout(renderFillBlank, 600);
+  });
+}
+
+function generateDistractors(correct, chapterData){
+  // 从本关其他挖空题或trickCards中取干扰项
+  const pool = new Set();
+  chapterData.fillBlanks.forEach(fb=>fb.answer.forEach(a=>{if(!correct.includes(a))pool.add(a)}));
+  chapterData.trapCards.forEach(tc=>{
+    // 从错误答案提取干扰
+    const m = tc.wrong.match(/=\s*(.+?)(?:[,，。])/);
+    if(m) pool.add(m[1].trim());
+  });
+  // 补充通用干扰
+  const extras = ['0','1','2','−1','x','y','a','b','c','n','k','d','r','2','3','4','5','1/2','∞','−∞','up','down','left','right'];
+  extras.forEach(e=>pool.add(e));
+  const arr = Array.from(pool).filter(x=>!correct.includes(x));
+  shuffle(arr);
+  // 干扰项数量 = 正确答案数量（保证池不太大）
+  return arr.slice(0, Math.max(2, correct.length));
+}
+
+// ---- 拖拽逻辑（Touch + Mouse兼容）----
+function initDragDrop(fb){
+  const blanks = document.querySelectorAll('.fb-blank');
+  const tokens = document.querySelectorAll('.fb-token');
+  let activeToken = null;
+  let activeClone = null;
+  let touchOffset = {x:0,y:0};
+
+  tokens.forEach(token=>{
+    token.addEventListener('pointerdown', startDrag);
+  });
+
+  function startDrag(e){
+    e.preventDefault();
+    if(e.currentTarget.classList.contains('used')) return;
+    activeToken = e.currentTarget;
+    const rect = activeToken.getBoundingClientRect();
+    touchOffset.x = e.clientX - rect.left;
+    touchOffset.y = e.clientY - rect.top;
+
+    // 创建拖拽克隆
+    activeClone = activeToken.cloneNode(true);
+    activeClone.classList.add('dragging');
+    activeClone.style.position='fixed';
+    activeClone.style.left=(e.clientX-touchOffset.x)+'px';
+    activeClone.style.top=(e.clientY-touchOffset.y)+'px';
+    activeClone.style.width=rect.width+'px';
+    activeClone.style.zIndex='1000';
+    activeClone.style.pointerEvents='none';
+    document.body.appendChild(activeClone);
+
+    activeToken.style.opacity='.3';
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', endDrag);
+  }
+
+  function onMove(e){
+    if(!activeClone) return;
+    e.preventDefault();
+    activeClone.style.left=(e.clientX-touchOffset.x)+'px';
+    activeClone.style.top=(e.clientY-touchOffset.y)+'px';
+
+    // 检测hover
+    blanks.forEach(b=>{
+      const r = b.getBoundingClientRect();
+      if(e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom){
+        b.classList.add('drop-hover');
+      }else{
+        b.classList.remove('drop-hover');
+      }
+    });
+  }
+
+  function endDrag(e){
+    if(!activeClone) return;
+    let dropped = false;
+    blanks.forEach(b=>{
+      const r = b.getBoundingClientRect();
+      if(e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom){
+        placeToken(b, activeToken);
+        dropped = true;
+      }
+      b.classList.remove('drop-hover');
+    });
+    if(!dropped){
+      activeToken.style.opacity='1';
+    }
+    activeClone.remove();
+    activeClone=null;
+    activeToken=null;
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', endDrag);
+  }
+
+  function placeToken(blank, token){
+    const val = token.getAttribute('data-val');
+    // 如果空位已有token，先恢复
+    const existing = blank.getAttribute('data-placed');
+    if(existing){
+      const oldToken = document.querySelector(`.fb-token[data-val="${CSS.escape(existing)}"]:not([style*="opacity: 1"])`);
+      // 简化：直接恢复所有used中匹配的
+      document.querySelectorAll('.fb-token.used').forEach(t=>{
+        if(t.getAttribute('data-val')===existing && t.style.display!=='none'){
+          t.classList.remove('used');
+          t.style.opacity='1';
+        }
+      });
+    }
+    blank.textContent = val;
+    blank.classList.add('filled');
+    blank.setAttribute('data-placed', val);
+    token.classList.add('used');
+    token.style.opacity='.25';
+
+    // 检查是否所有空位已填
+    checkAllFilled();
+  }
+
+  // 也支持点击放置（备选）
+  blanks.forEach(blank=>{
+    blank.addEventListener('click',()=>{
+      // 点击空位时，找一个未使用的token放上去
+      const placed = blank.getAttribute('data-placed');
+      if(placed){
+        // 取消放置
+        document.querySelectorAll('.fb-token').forEach(t=>{
+          if(t.getAttribute('data-val')===placed && t.classList.contains('used')){
+            t.classList.remove('used');
+            t.style.opacity='1';
+          }
+        });
+        blank.textContent='___';
+        blank.classList.remove('filled','wrong');
+        blank.removeAttribute('data-placed');
+        document.getElementById('fb-submit').disabled=true;
+        document.getElementById('fb-submit').style.opacity='.5';
+      }
+    });
+  });
+  // 点击token也能放置到下一个空位
+  tokens.forEach(token=>{
+    token.addEventListener('click',()=>{
+      if(token.classList.contains('used')) return;
+      const emptyBlank = Array.from(blanks).find(b=>!b.getAttribute('data-placed'));
+      if(emptyBlank){
+        placeToken(emptyBlank, token);
+      }
+    });
+  });
+
+  function checkAllFilled(){
+    const allFilled = Array.from(blanks).every(b=>b.getAttribute('data-placed'));
+    const submitBtn = document.getElementById('fb-submit');
+    if(allFilled){
+      submitBtn.disabled=false;
+      submitBtn.style.opacity='1';
+    }else{
+      submitBtn.disabled=true;
+      submitBtn.style.opacity='.5';
+    }
+  }
+
+  document.getElementById('fb-submit').addEventListener('click',()=>{
+    let allCorrect = true;
+    blanks.forEach(b=>{
+      const placed = b.getAttribute('data-placed');
+      const correct = b.getAttribute('data-correct');
+      if(placed===correct){
+        b.classList.add('filled');
+      }else{
+        b.classList.add('wrong');
+        allCorrect=false;
+      }
+    });
+
+    if(allCorrect){
+      bumpCombo();
+      showFloat('+15 ✔','pos');
+      state.fbIdx++;
+      setTimeout(renderFillBlank, 1200);
+    }else{
+      state.phaseErrors++;
+      state.totalErrors++;
+      breakCombo();
+      damagePlayer(12);
+      showFloat('-12 ✘','neg');
+      addRevenge({wrong:`挖空: ${fb.q}`, hint:`答案: ${fb.answer.join(', ')}`});
+      // 显示正确答案
+      blanks.forEach(b=>{
+        b.textContent = b.getAttribute('data-correct');
+        b.classList.remove('wrong');
+        b.classList.add('filled');
+      });
+      state.fbIdx++;
+      setTimeout(renderFillBlank, 1800);
+    }
+  });
+}
+
+/* ============================================================
+ * 阶段3: BOSS战
+ * ============================================================ */
+function renderBossTask(){
+  const content = document.getElementById('battle-content');
+  const tasks = state.current.microTasks;
+  if(state.bossIdx >= tasks.length || state.bossHP<=0){
+    // BOSS战结束
+    showResult(state.bossHP<=0);
+    return;
+  }
+
+  const task = tasks[state.bossIdx];
+  content.innerHTML = `
+    <div class="boss-area">
+      <div class="boss-visual">
+        <div class="boss-avatar">${state.current.icon}</div>
+      </div>
+      <div class="boss-q">${escapeHTML(task.q)}</div>
+      <div class="boss-steps" id="boss-steps">
+        ${task.steps.map((s,i)=>`
+          <div class="boss-step" data-idx="${i}">
+            <div class="step-idx">${i+1}</div>
+            <input type="text" placeholder="第${i+1}步..." data-correct="${escapeAttr(s)}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="step-hint" data-idx="${i}">💡</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="boss-actions">
+        <button class="boss-btn hint" id="boss-hint-btn">查看提示</button>
+        <button class="boss-btn check" id="boss-check">提交答案</button>
+      </div>
+    </div>
+  `;
+
+  // 提示按钮
+  document.getElementById('boss-hint-btn').addEventListener('click',()=>{
+    showToast('提示: '+task.ms, 'badge');
+  });
+
+  // 步骤提示
+  document.querySelectorAll('.step-hint').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const idx = parseInt(el.getAttribute('data-idx'));
+      const correct = task.steps[idx];
+      showToast('提示: '+correct, 'badge');
+    });
+  });
+
+  // 提交
+  document.getElementById('boss-check').addEventListener('click',()=>{
+    let allCorrect = true;
+    const inputs = document.querySelectorAll('.boss-step input');
+    inputs.forEach((inp,i)=>{
+      const val = inp.value.trim();
+      const correct = task.steps[i];
+      const stepEl = inp.closest('.boss-step');
+      if(normalizeAnswer(val)===normalizeAnswer(correct)){
+        stepEl.classList.add('done');
+        inp.disabled=true;
+      }else if(val===''){
+        // 空值算错
+        stepEl.classList.add('wrong');
+        allCorrect=false;
+      }else{
+        stepEl.classList.add('wrong');
+        allCorrect=false;
+      }
+    });
+
+    if(allCorrect){
+      bumpCombo();
+      state.bossCorrect++;
+      damageBoss(Math.ceil(100/tasks.length));
+      showFloat('BOSS -'+Math.ceil(100/tasks.length)+'!','pos');
+      // 满分句式
+      if(!state.msEarned){
+        state.msEarned = true;
+        state.current.ms = task.ms;
+      }
+      state.bossIdx++;
+      if(state.bossIdx<tasks.length && state.bossHP>0){
+        setTimeout(renderBossTask, 1200);
+      }
+    }else{
+      state.phaseErrors++;
+      state.totalErrors++;
+      breakCombo();
+      damagePlayer(15);
+      showFloat('-15 ✘','neg');
+      addRevenge({wrong:`BOSS: ${task.q}`, hint:`步骤: ${task.steps.join(' → ')}`});
+      // 显示正确答案
+      inputs.forEach((inp,i)=>{
+        const stepEl = inp.closest('.boss-step');
+        if(stepEl.classList.contains('wrong')){
+          inp.value = task.steps[i];
+          stepEl.classList.remove('wrong');
+          stepEl.classList.add('done');
+          inp.disabled=true;
+        }
+      });
+      state.bossIdx++;
+      if(state.bossIdx<tasks.length && state.bossHP>0){
+        setTimeout(renderBossTask, 2000);
+      }
+    }
+  });
+
+  // 第一个input聚焦
+  setTimeout(()=>{
+    const firstInput = document.querySelector('.boss-step input');
+    if(firstInput) firstInput.focus();
+  },300);
+}
+
+/* ============================================================
+ * 结算
+ * ============================================================ */
+function showResult(victory){
+  const isVictory = victory || state.bossHP<=0;
+  const page = document.getElementById('result-page');
+  document.getElementById('battle-page').classList.remove('active');
+  page.classList.add('active');
+
+  const icon = document.getElementById('result-icon');
+  const title = document.getElementById('result-title');
+  const sub = document.getElementById('result-sub');
+  const starsEl = document.getElementById('result-stars');
+  const statsEl = document.getElementById('result-stats');
+  const msEl = document.getElementById('ms-display');
+  const nextBtn = document.getElementById('result-next');
+
+  if(!isVictory){
+    icon.textContent='💀';
+    title.textContent='挑战失败';
+    title.style.background='linear-gradient(135deg,var(--primary),var(--primary-g))';
+    title.style.webkitBackgroundClip='text';
+    sub.textContent='HP耗尽了，再试一次吧！';
+    starsEl.innerHTML='<span class="star-empty">★★★</span>';
+    statsEl.innerHTML='';
+    msEl.style.display='none';
+    nextBtn.textContent='重新挑战';
+    nextBtn.onclick = ()=>startBattle(state.chapter, state.isDaily);
+    return;
+  }
+
+  // 胜利结算
+  icon.textContent='🎉';
+  title.textContent='关卡完成！';
+  title.style.background='linear-gradient(135deg,var(--gold),var(--primary-g))';
+  title.style.webkitBackgroundClip='text';
+
+  // 星级评定
+  let stars=1; // 基础1星
+  const hpRatio = state.hp/100;
+  if(hpRatio>=0.7) stars=2;
+  if(hpRatio>=0.7 && state.maxCombo>=5) stars=3;
+
+  // 更新存档
+  const oldStars = state.save.stars[String(state.chapter)]||0;
+  if(stars>oldStars){
+    state.save.stars[String(state.chapter)] = stars;
+  }
+  persist();
+
+  // 检查徽章
+  if(state.totalErrors===0){
+    const badge = state.current.badges[0];
+    if(badge && !state.save.badges.includes(badge.name)){
+      state.save.badges.push(badge.name);
+      persist();
+      setTimeout(()=>showToast('🏅 解锁徽章: '+badge.name,'badge'),800);
+    }
+  }
+
+  // 段位检查
+  const totalStars = Object.values(state.save.stars).reduce((a,b)=>a+b,0);
+  const oldRank = getRank(oldStars>0?totalStars-stars:totalStars-stars);
+  const newRank = getRank(totalStars);
+  if(oldRank.name!==newRank.name){
+    setTimeout(()=>showToast('🏆 段位升级: '+newRank.name+'！','rank'),1600);
+  }
+
+  let starHTML='';
+  for(let i=0;i<3;i++){
+    starHTML+=`<span class="${i<stars?'star-filled':'star-empty'}" style="animation-delay:${i*.15}s">★</span>`;
+  }
+  starsEl.innerHTML=starHTML;
+  sub.textContent=`${state.current.icon} ${state.current.name}`;
+
+  statsEl.innerHTML=`
+    <div class="result-stat"><div class="rs-label">剩余HP</div><div class="rs-value" style="color:var(--green-g)">${state.hp}%</div></div>
+    <div class="result-stat"><div class="rs-label">最高连击</div><div class="rs-value" style="color:var(--gold)">${state.maxCombo}x</div></div>
+    <div class="result-stat"><div class="rs-label">总错误数</div><div class="rs-value" style="color:var(--primary-g)">${state.totalErrors}</div></div>
+    <div class="result-stat"><div class="rs-label">获得星数</div><div class="rs-value" style="color:var(--accent-g)">${stars}★</div></div>
+  `;
+
+  // 满分句式
+  if(state.current.ms){
+    msEl.style.display='block';
+    document.getElementById('ms-text').textContent = state.current.ms;
+  }else{
+    msEl.style.display='none';
+  }
+
+  // 下一关按钮
+  if(state.isDaily){
+    // 每日秘境模式
+    const idx = state.dailyQueue.indexOf(state.chapter);
+    if(idx>=0 && idx<state.dailyQueue.length-1){
+      nextBtn.textContent='下一关 (秘境)';
+      nextBtn.onclick = ()=>startBattle(state.dailyQueue[idx+1], true);
+    }else{
+      nextBtn.textContent='秘境完成！返回地图';
+      nextBtn.onclick = ()=>goMap();
+    }
+  }else{
+    if(state.chapter<18 && isUnlocked(state.chapter+1)){
+      nextBtn.textContent='下一关 →';
+      nextBtn.onclick = ()=>startBattle(state.chapter+1);
+    }else{
+      nextBtn.textContent='返回地图';
+      nextBtn.onclick = ()=>goMap();
+    }
+  }
+}
+
+/* ============================================================
+ * 复仇库
+ * ============================================================ */
+function addRevenge(card){
+  // 去重
+  if(state.save.revengeCards.some(c=>c.wrong===card.wrong)) return;
+  state.save.revengeCards.push(card);
+  if(state.save.revengeCards.length>50) state.save.revengeCards.shift();
+  persist();
+}
+
+/* ============================================================
+ * 每日秘境
+ * ============================================================ */
+function startDaily(){
+  const pool = QUEST_DATA.filter(q=>isUnlocked(q.chapter));
+  if(pool.length<3){
+    showToast('至少解锁3关才能挑战秘境','error');
+    return;
+  }
+  shuffle(pool);
+  state.dailyQueue = pool.slice(0,3).map(q=>q.chapter);
+  showToast('🎲 秘境开启: 第'+state.dailyQueue.join('→')+'关','rank');
+  setTimeout(()=>startBattle(state.dailyQueue[0], true), 1000);
+}
+
+/* ============================================================
+ * 工具函数
+ * ============================================================ */
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function escapeHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escapeAttr(s){return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function normalizeAnswer(s){
+  return String(s).trim().toLowerCase()
+    .replace(/\s+/g,'')
+    .replace(/×/g,'*')
+    .replace(/÷/g,'/')
+    .replace(/−/g,'-')
+    .replace(/–/g,'-');
+}
+
+function goMap(){
+  document.getElementById('battle-page').classList.remove('active');
+  document.getElementById('result-page').classList.remove('active');
+  document.getElementById('map-page').classList.add('active');
+  renderMap();
+}
+
+/* ============================================================
+ * 事件绑定
+ * ============================================================ */
+document.getElementById('battle-back').addEventListener('click',()=>{
+  if(confirm('退出本关？进度不会保存。')) goMap();
+});
+document.getElementById('result-replay').addEventListener('click',()=>{
+  startBattle(state.chapter, state.isDaily);
+});
+document.getElementById('result-map').addEventListener('click', goMap);
+document.getElementById('daily-btn').addEventListener('click', startDaily);
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  if(currentUser && confirm(`确定重置 ${currentUser} 的存档？所有星数、徽章、复仇卡都会清除！`)){
+    localStorage.removeItem(storageKey());
+    state.save = {stars:{},bestCombo:0,badges:[],revengeCards:[]};
+    renderMap();
+    showToast('存档已重置','error');
+  }
+});
+
+// ---- 键盘支持 ----
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('battle-page').classList.contains('active')) goMap();
+  }
+  if(e.key==='Enter'){
+    // 登录页Enter登录
+    const loginPage = document.getElementById('login-page');
+    if(loginPage.classList.contains('active')){
+      loginByName();
+      return;
+    }
+    // BOSS战中Enter提交
+    const checkBtn = document.getElementById('boss-check');
+    if(checkBtn && !checkBtn.disabled) checkBtn.click();
+  }
+});
+
+/* ============================================================
+ * 学生登录系统
+ * ============================================================ */
+function getUserList(){
+  try{ return JSON.parse(localStorage.getItem(USER_LIST_KEY))||[]; }catch(e){ return []; }
+}
+function saveUserList(list){
+  try{ localStorage.setItem(USER_LIST_KEY, JSON.stringify(list)); }catch(e){}
+}
+function addToUserList(name){
+  let list = getUserList();
+  if(!list.includes(name)){ list.unshift(name); saveUserList(list); }
+}
+
+function renderLogin(){
+  const list = getUserList();
+  const container = document.getElementById('login-user-list');
+  if(list.length===0){
+    container.innerHTML = '<div class="login-empty">还没有同学，输入名字开始吧</div>';
+  }else{
+    container.innerHTML = list.map(name=>`
+      <div class="login-user-chip" data-user="${escapeAttr(name)}">
+        ${escapeHTML(name)}
+        <span class="chip-x" data-del="${escapeAttr(name)}">✕</span>
+      </div>
+    `).join('');
+    container.querySelectorAll('.login-user-chip').forEach(chip=>{
+      chip.addEventListener('click',(e)=>{
+        if(e.target.classList.contains('chip-x')){
+          e.stopPropagation();
+          // 删除用户
+          let list2 = getUserList().filter(n=>n!==e.target.getAttribute('data-del'));
+          saveUserList(list2);
+          renderLogin();
+          return;
+        }
+        loginByName(chip.getAttribute('data-user'));
+      });
+    });
+  }
+  // 清空输入框
+  document.getElementById('login-name-input').value='';
+  document.getElementById('login-name-input').focus();
+}
+
+function loginByName(name){
+  name = (name || document.getElementById('login-name-input').value || '').trim();
+  if(!name){
+    showToast('请输入名字','error');
+    return;
+  }
+  // 简单防注入：去掉可能破坏存储的字符
+  name = name.replace(/[\\'"]/g,'').slice(0,12);
+  if(!name){ showToast('名字无效，请重新输入','error'); return; }
+
+  currentUser = name;
+  try{ localStorage.setItem(ACTIVE_USER_KEY, currentUser); }catch(e){}
+  addToUserList(currentUser);
+
+  // 加载该学生存档
+  state.save = { stars:{}, bestCombo:0, badges:[], revengeCards:[] };
+  loadSave();
+  persist();   // 立即落盘，确保每个学生都有独立存档
+  renderMap();
+
+  // 切到地图页
+  document.getElementById('login-page').classList.remove('active');
+  document.getElementById('map-page').classList.add('active');
+  showToast(`👋 欢迎回来，${currentUser}！`, 'rank');
+}
+
+function switchUser(){
+  const overlay = document.createElement('div');
+  overlay.className = 'user-switch-overlay';
+  const list = getUserList();
+  overlay.innerHTML = `
+    <div class="user-switch-card">
+      <div class="usc-title">切换同学</div>
+      <div class="usc-current">当前：${escapeHTML(currentUser||'未登录')}</div>
+      <div class="usc-list">
+        ${list.map(name=>{
+          const s = (function(){
+            try{ const d=JSON.parse(localStorage.getItem('fq_save_'+name)||'{}'); 
+              return Object.values(d.stars||{}).reduce((a,b)=>a+b,0);}catch(e){return 0;}
+          })();
+          return `<div class="usc-item" data-user="${escapeAttr(name)}">${escapeHTML(name)}<span class="usc-stars">⭐${s}</span></div>`;
+        }).join('')}
+      </div>
+      <div class="usc-new">＋ 添加新同学</div>
+      <div class="usc-close">关闭</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelectorAll('.usc-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      loginByName(item.getAttribute('data-user'));
+      overlay.remove();
+    });
+  });
+  overlay.querySelector('.usc-new').addEventListener('click',()=>{
+    overlay.remove();
+    document.getElementById('map-page').classList.remove('active');
+    document.getElementById('login-page').classList.add('active');
+    renderLogin();
+  });
+  overlay.querySelector('.usc-close').addEventListener('click',()=>overlay.remove());
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) overlay.remove(); });
+}
+
+function goLogin(){
+  currentUser = null;
+  try{ localStorage.removeItem(ACTIVE_USER_KEY); }catch(e){}
+  document.getElementById('map-page').classList.remove('active');
+  document.getElementById('battle-page').classList.remove('active');
+  document.getElementById('result-page').classList.remove('active');
+  document.getElementById('login-page').classList.add('active');
+  renderLogin();
+}
+
+// ---- 登录页事件 ----
+document.getElementById('login-enter-btn').addEventListener('click', ()=>loginByName());
+document.getElementById('login-name-input').addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); loginByName(); }
+});
+
+// ---- 顶栏用户按钮 ----
+document.getElementById('user-btn').addEventListener('click', switchUser);
+
+// ---- 启动 ----
+(function init(){
+  // 尝试恢复上次登录的学生
+  let saved = null;
+  try{ saved = localStorage.getItem(ACTIVE_USER_KEY); }catch(e){}
+  if(saved){
+    currentUser = saved;
+    state.save = { stars:{}, bestCombo:0, badges:[], revengeCards:[] };
+    loadSave();
+    persist();
+    renderMap();
+    document.getElementById('login-page').classList.remove('active');
+    document.getElementById('map-page').classList.add('active');
+    showToast(`👋 欢迎回来，${saved}！`,'rank');
+  }else{
+    renderLogin();
+  }
+})();
+</script>
+</body>
+</html>
